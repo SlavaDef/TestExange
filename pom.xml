@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>mvn-test</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gson.version>2.10.1</gson.version>
+        <docker.tag.name>latest</docker.tag.name>
+        <docker.maven.plugin.version>0.43.0</docker.maven.plugin.version>
+        <docker.skip.push>true</docker.skip.push>
+        <docker.repository.name>test-maven</docker.repository.name>
+        <jacoco.version>0.8.6</jacoco.version>
+        <jacoco.min.coverage>0.85</jacoco.min.coverage> <!--процентне покриття тестами -->
+        <descriptor.ref>jar-with-dependencies</descriptor.ref>
+        <slf4j.version>2.0.0-alpha1</slf4j.version>
+        <custom.finalName>my-project-name</custom.finalName>
+        <site.plugin.version>3.7.1</site.plugin.version>
+        <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
+        <maven.project.info.reports.plugin.vervion>3.0.0</maven.project.info.reports.plugin.vervion>
+        <docker.outputDirectory>docker/my1795/docker-demo/1.0-SNAPSHOT/build/maven-test</docker.outputDirectory>
+        <mainClass.path>org.example.App</mainClass.path>
+    </properties>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <finalName>${custom.finalName}</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${site.plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.project.info.reports.plugin.vervion}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.example.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
+
+                <configuration>
+                    <outputDirectory>${project.build.directory}/${docker.outputDirectory}</outputDirectory>
+
+                    <descriptorRefs>
+                        <descriptorRef>${descriptor.ref}</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>${mainClass.path}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <pushRegistry>localhost:5000</pushRegistry>
+                    <containerNamePattern>%n</containerNamePattern>
+                    <images>
+                        <image>
+                            <alias>maven-demo</alias>
+                            <name>my1795/docker-demo:${project.version}</name>
+                            <build>
+                                <from>openjdk:17-alpine</from>
+                                <assembly>
+                                    <name>maven-test</name>
+                                    <targetDir>/maven-test</targetDir>
+                                </assembly>
+                                <entryPoint>java -jar /maven-test/${build.finalName}-${descriptor.ref}.jar</entryPoint>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>8080:8187</port>
+                                </ports>
+                            </run>
+                            <copy>
+                                <entries>
+                                    <entry>
+                                        <containerPath>/maven-test</containerPath>
+                                        <hostDirectory>
+                                            ${project.build.directory}/target/${build.finalName}-${descriptor.ref}.jar
+                                        </hostDirectory>
+                                    </entry>
+                                </entries>
+                            </copy>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId> <!-- плагін дозволить узнати покриттия тестами -->
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration> <!--директорія для складання інфи о перевірці -->
+                    <outputDirectory>target/coverage-reports/jacoco-it</outputDirectory>
+                    <rules>
+                        <rule>
+                            <element>PACKAGE</element>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter> <!-- покриття по лініях -->
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>${jacoco.min.coverage}</minimum> <!-- мін покриттия тестами -->
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                    <excludes> <!-- винятки тут тестів не буде -->
+                        <exclude>org/example/Main.class</exclude>
+                        <exclude>org/example/dto/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
+</project>

@@ -18,8 +18,6 @@
         <docker.maven.plugin.version>0.43.0</docker.maven.plugin.version>
         <docker.skip.push>true</docker.skip.push>
         <docker.repository.name>test-maven</docker.repository.name>
-        <jacoco.version>0.8.6</jacoco.version>
-        <jacoco.min.coverage>0.85</jacoco.min.coverage> <!--процентне покриття тестами -->
         <descriptor.ref>jar-with-dependencies</descriptor.ref>
         <slf4j.version>2.0.0-alpha1</slf4j.version>
         <custom.finalName>my-project-name</custom.finalName>
@@ -156,39 +154,6 @@
                         </image>
                     </images>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jacoco</groupId> <!-- плагін дозволить узнати покриттия тестами -->
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <configuration> <!--директорія для складання інфи о перевірці -->
-                    <outputDirectory>target/coverage-reports/jacoco-it</outputDirectory>
-                    <rules>
-                        <rule>
-                            <element>PACKAGE</element>
-                            <limits>
-                                <limit>
-                                    <counter>LINE</counter> <!-- покриття по лініях -->
-                                    <value>COVEREDRATIO</value>
-                                    <minimum>${jacoco.min.coverage}</minimum> <!-- мін покриттия тестами -->
-                                </limit>
-                            </limits>
-                        </rule>
-                    </rules>
-                    <excludes> <!-- винятки тут тестів не буде -->
-                        <exclude>org/example/Main.class</exclude>
-                        <exclude>org/example/dto/**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>

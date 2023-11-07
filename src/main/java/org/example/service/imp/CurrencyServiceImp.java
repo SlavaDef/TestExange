@@ -24,6 +24,10 @@ public class CurrencyServiceImp implements CurrencyService {
     public CurrencyServiceImp(){
         this.exchangeService = new ExchangeServiceImp();
     }
+
+    public CurrencyServiceImp(ExchangeService exchangeService) {
+        this.exchangeService = exchangeService;
+    }
     @Override
     public BigDecimal convert(BigDecimal amount, String currency) throws IOException {
 

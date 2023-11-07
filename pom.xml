@@ -19,13 +19,14 @@
         <docker.skip.push>true</docker.skip.push>
         <docker.repository.name>test-maven</docker.repository.name>
         <descriptor.ref>jar-with-dependencies</descriptor.ref>
-        <slf4j.version>2.0.0-alpha1</slf4j.version>
+        <slf4j.version>2.0.7</slf4j.version>
         <custom.finalName>my-project-name</custom.finalName>
         <site.plugin.version>3.7.1</site.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
         <maven.project.info.reports.plugin.vervion>3.0.0</maven.project.info.reports.plugin.vervion>
-        <docker.outputDirectory>docker/my1795/docker-demo/1.0-SNAPSHOT/build/maven-test</docker.outputDirectory>
+        <docker.outputDirectory>docker/my2023/docker-demo/1.0-SNAPSHOT/build/maven-test</docker.outputDirectory>
         <mainClass.path>org.example.App</mainClass.path>
+        <mockito.version>5.3.1</mockito.version>
     </properties>
 
     <dependencies>
@@ -35,6 +36,14 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -127,7 +136,7 @@
                     <images>
                         <image>
                             <alias>maven-demo</alias>
-                            <name>my1795/docker-demo:${project.version}</name>
+                            <name>my2023/docker-demo:${project.version}</name>
                             <build>
                                 <from>openjdk:17-alpine</from>
                                 <assembly>
@@ -155,6 +164,9 @@
                     </images>
                 </configuration>
             </plugin>
+
+
+
 
         </plugins>
 

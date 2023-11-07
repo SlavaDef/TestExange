@@ -16,7 +16,7 @@ public class ExchangeServiceImpTest {
 
     private static ExchangeServiceImp exchangeService;
 
-    @BeforeAll
+    @BeforeAll // всі @BeforeAll і AfterAll повинні бути статичними
     public static void inIt() {
         exchangeService = new ExchangeServiceImp();
     }
